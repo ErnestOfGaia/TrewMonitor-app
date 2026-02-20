@@ -1,0 +1,27 @@
+import CryptoJS from 'crypto-js';
+
+const ENCRYPTION_KEY = process.env.NEXTAUTH_SECRET ?? 'fallback-key-do-not-use-in-production';
+
+export function encryptData(data: string): string {
+  if (!data) return '';
+  try {
+    return CryptoJS?.AES?.encrypt?.(data, ENCRYPTION_KEY)?.toString?.() ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function decryptData(encryptedData: string): string {
+  if (!encryptedData) return '';
+  try {
+    const bytes = CryptoJS?.AES?.decrypt?.(encryptedData, ENCRYPTION_KEY);
+    return bytes?.toString?.(CryptoJS?.enc?.Utf8) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function maskApiKey(key: string): string {
+  if (!key || key?.length < 8) return '********';
+  return `${key?.slice?.(0, 4) ?? ''}****${key?.slice?.(-4) ?? ''}`;
+}
