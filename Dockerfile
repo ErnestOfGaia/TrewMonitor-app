@@ -14,7 +14,7 @@ WORKDIR /app
 COPY package.json ./
 
 # Install dependencies
-RUN yarn install --frozen-lockfile --network-timeout 100000 || yarn install --network-timeout 100000
+RUN yarn install --network-timeout 100000 || yarn install --network-timeout 100000
 
 # ============================================
 # Stage 2: Builder
