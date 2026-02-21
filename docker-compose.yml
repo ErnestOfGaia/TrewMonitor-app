@@ -1,55 +1,55 @@
 # TrewMonitor - Docker Compose Configuration
 # Usage: docker-compose up -d
-
-version: '3.8'
-
 services:
-  # PostgreSQL Database
-  db:
-    image: postgres:15-alpine
-    container_name: trewmonitor-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-trewmonitor}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-trewmonitor123}
-      POSTGRES_DB: ${POSTGRES_DB:-trewmonitor}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trewmonitor}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+ db:
+ image: postgres:15-alpine
+ container_name: trewmonitor-db
+ restart: unless-stopped
+ environment:
+ POSTGRES_USER: ${POSTGRES_USER:-trewmonitor}
+ POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+ POSTGRES_DB: ${POSTGRES_DB:-trewmonitor}
+ volumes:
+ - postgres_data:/var/lib/postgresql/data
+ healthcheck:
+ test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trewmonitor}"]
+ interval: 10s
+ timeout: 5s
+ retries: 5
+ networks:
+ - trewmonitor-network
 
-  # TrewMonitor Application
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: trewmonitor-app
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-trewmonitor}:${POSTGRES_PASSWORD:-trewmonitor123}@db:5432/${POSTGRES_DB:-trewmonitor}?schema=public
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-your-secret-key-change-in-production}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-your-encryption-key-32chars}
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+ app:
+ build:
+ context: .
+ dockerfile: Dockerfile
+ container_name: trewmonitor-app
+ restart: unless-stopped
+ environment:
+ - DATABASE_URL=postgresql://${POSTGRES_USER:-trewmonitor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-trewmonitor}?schema=public
+ - NEXTAUTH_URL=${NEXTAUTH_URL}
+ - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+ depends_on:
+ db:
+ condition: service_healthy
+ healthcheck:
+ test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+ interval: 30s
+ timeout: 10s
+ retries: 3
+ # If you use Nginx Proxy Manager, do NOT publish 3000 publicly:
+ expose:
+ - "3000"
+ networks:
+ - trewmonitor-network
+ - nginx-proxy
 
 volumes:
-  postgres_data:
-    driver: local
+ postgres_data:
 
 networks:
-  default:
-    name: trewmonitor-network
+ trewmonitor-network:
+ name: trewmonitor-network
+ nginx-proxy:
+ external: true
