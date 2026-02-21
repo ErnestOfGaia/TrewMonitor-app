@@ -4,7 +4,8 @@
 # ============================================
 # Stage 1: Dependencies
 # ============================================
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
+
 
 RUN apk add --no-cache libc6-compat
 
@@ -19,7 +20,8 @@ RUN yarn install --network-timeout 100000
 # ============================================
 # Stage 2: Builder
 # ============================================
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS deps
+
 
 WORKDIR /app
 
@@ -40,7 +42,8 @@ RUN yarn build
 # ============================================
 # Stage 3: Runner (Production)
 # ============================================
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS deps
+
 
 WORKDIR /app
 
