@@ -88,6 +88,9 @@ export default function BotsListPage() {
       notes: String(botAny.notes ?? ''),
       status: bot.status ?? 'active',
     });
+    setShowForm(true);
+    setError('');
+  }; 
 
   const handleCancel = () => {
     setShowForm(false);
