@@ -74,6 +74,7 @@ export default function BotsListPage() {
 
   const handleEdit = (bot: BotData) => {
     setEditingId(bot.id);
+    const botAny = bot as unknown as Record<string, unknown>;
     setForm({
       pair: bot.displayPair ?? bot.pair,
       upperLimit: String(bot.upperLimit),
@@ -81,15 +82,12 @@ export default function BotsListPage() {
       gridCount: String(bot.gridCount),
       gridType: bot.gridType ?? 'arithmetic',
       investment: String(bot.investment),
-      startedAt: bot.startedAt
-        ? new Date(bot.startedAt).toISOString().slice(0, 16)
+      startedAt: botAny.startedAt
+        ? new Date(String(botAny.startedAt)).toISOString().slice(0, 16)
         : '',
-      notes: (bot as unknown as { notes?: string }).notes ?? '',
+      notes: String(botAny.notes ?? ''),
       status: bot.status ?? 'active',
     });
-    setShowForm(true);
-    setError('');
-  };
 
   const handleCancel = () => {
     setShowForm(false);
