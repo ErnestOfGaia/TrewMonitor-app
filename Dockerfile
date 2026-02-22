@@ -66,9 +66,11 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone/ ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static/ ./.next/static/
 
-# Copy Prisma client
+# Copy Prisma client and CLI
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 
 # Switch to non-root user
 USER nextjs
@@ -84,4 +86,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 # Start the application - run migrations then start server
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=/app/prisma/schema.prisma && node server.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy --schema=/app/prisma/schema.prisma && node server.js"]
