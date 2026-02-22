@@ -386,4 +386,8 @@ function generateMockArbitrages(gridLevels: number[], currentPrice: number) {
   return arbitrages.sort((a, b) => a.timestamp - b.timestamp);
 }
 
-export type BotData = ReturnType<typeof getMockBotData>[0];
+export type BotData = ReturnType<typeof getMockBotData>[0] & {
+  startedAt?: string;
+  notes?: string;
+  displayPair?: string;
+};
